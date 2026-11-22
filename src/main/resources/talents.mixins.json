@@ -1,0 +1,26 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.seniors.talents.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "talents.mixins.refmap.json",
+  "client": [
+    "MixForgeGui",
+    "MixPlayerRenderer",
+    "MixInventoryScreen"
+  ],
+  "mixins": [
+    "MixItemStack",
+    "MixPlayer",
+    "MixPowderSnowBlock",
+    "MixVillager",
+    "MixCraftingMenu",
+    "AbstractFurnaceBlockEntityMixin",
+    "ClientboundSetEntityMotionPacketMixin",
+    "DragonEggBlockMixin",
+    "MemoryAccessorMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

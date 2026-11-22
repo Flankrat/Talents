@@ -1,0 +1,36 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="Academic Free License v3.0"
+
+[[mods]]
+modId="talents"
+version="${mod_version}"
+displayName="Talents"
+credits="Mod forked from Just leveling Fork"
+authors="Kettle5000"
+description="1.20.1"
+
+# Start of user code block mod configuration
+# End of user code block mod configuration
+
+[[dependenciest.talents]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.20.1,1.21)"
+    ordering="NONE"
+    side="BOTH"
+	
+[[dependencies.talents]]
+    modId="pml"
+    mandatory=true
+    versionRange="[1.0.4,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.talents]]
+    modId = "yet_another_config_lib_v3"
+    mandatory = true
+    versionRange = "[3.4.2,)"
+    ordering = "NONE"
+    side = "CLIENT"
+	
