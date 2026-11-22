@@ -1,0 +1,20 @@
+{
+  "mortal_strike" : {
+    "subtitle": "screen.skill.mortal_strike",
+    "sounds": [
+      "talents:mortal_strike"
+    ]
+  },
+  "gain_title" : {
+    "subtitle": "screen.title.sound_effect",
+    "sounds": [
+      "talents:gain_title"
+    ]
+  },
+  "ledge_grab" : {
+    "subtitle": "skill.talents.ledge_grab",
+    "sounds": [
+      "talents:ledge_grab"
+    ]
+  }
+}
