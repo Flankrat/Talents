@@ -40,6 +40,16 @@ public class HandlerCommonConfig {
     @AutoGen(category = "common", group = "general")
     @IntField(min = 1, max = 1000)
     public int aptitudeFirstCostLevel = 1;
+
+    @SerialEntry(comment = "Learn by doing: aptitudes also level up from what you do (killing, mining, farming, crafting...). Rates are in talents.learn-by-doing.json5. Passives still cost XP.")
+    @AutoGen(category = "common", group = "general")
+    @Boolean(formatter = Boolean.Formatter.ON_OFF)
+    public boolean learnByDoing = false;
+
+    @SerialEntry(comment = "With learn by doing on: aptitude levels up to this one can still be bought with XP like before (what you do counts toward them too). Levels above it only come from what you do. 0 = no levels can be bought.")
+    @AutoGen(category = "common", group = "general")
+    @IntField(min = 0, max = 1000)
+    public int learnByDoingMaxBoughtLevel = 16;
     @SerialEntry(comment = "Show potions overlay over skills")
     @AutoGen(category = "common", group = "general")
     @Boolean(formatter = Boolean.Formatter.ON_OFF)
