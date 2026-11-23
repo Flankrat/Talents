@@ -12,6 +12,7 @@ import dev.isxander.yacl3.config.v2.api.autogen.*;
 import dev.isxander.yacl3.config.v2.api.serializer.GsonConfigSerializerBuilder;
 import net.minecraft.resources.ResourceLocation;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -443,6 +444,10 @@ public class HandlerCommonConfig {
     @SerialEntry(comment = "Required level to unlock Golden Osmosis skill")
     @IntField(min = 1)
     public int goldenosmosisRequiredLevel = 24;
+
+    @SerialEntry(comment = "Extra items Golden Osmosis treats as golden (vanilla gold tools and armor always count). Entries: \"modid:item\", \"modid:prefix*\" (every item of that mod whose name starts with prefix) or \"#modid:tag\" (an item tag).")
+    @ListGroup(controllerFactory = StringListGroup.class, valueFactory = StringListGroup.class)
+    public List<String> goldenOsmosisExtraItems = new ArrayList<>();
     
     @SerialEntry(comment = "Required level to unlock Teleport Disruption skill")
     @IntField(min = 1)

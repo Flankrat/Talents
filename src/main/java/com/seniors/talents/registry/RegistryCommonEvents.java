@@ -10,6 +10,7 @@ import com.seniors.talents.registry.skills.ConvergenceSkill;
 import com.seniors.talents.registry.skills.Skill;
 import com.seniors.talents.registry.skills.TransmutationSkill;
 import com.seniors.talents.registry.skills.TreasureHunterSkill;
+import com.seniors.talents.utils.GoldenOsmosisItems;
 import com.seniors.talents.utils.GreenThumbHandler;
 import com.seniors.talents.utils.HungryFarmerHandler;
 import com.seniors.talents.utils.LedgeGrabHandler;
@@ -957,6 +958,12 @@ public class RegistryCommonEvents {
     }
     
     private static boolean isGolden(ItemStack stack) {
+	    // modded gold gear listed in goldenOsmosisExtraItems (checked first: modded tools are often TieredItems
+	    // with their own tier, which the vanilla check below would turn down)
+	    if (GoldenOsmosisItems.matches(stack)) {
+	        return true;
+	    }
+
 	    Item item = stack.getItem();
 
 	    if (item instanceof TieredItem tiered) {
