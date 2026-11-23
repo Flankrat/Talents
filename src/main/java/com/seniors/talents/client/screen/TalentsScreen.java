@@ -286,9 +286,11 @@ public class TalentsScreen extends Screen {
 
         matrixStack.blit(HandlerResources.SKILL_PAGE[this.selectedPage], x + 153, y + 14, 177 + j, 1, 6, 6);
 
-        // with learn by doing the button can't buy levels; it shows the aptitude's XP progress instead
+        // with learn by doing the button also shows the aptitude's XP progress, and it only buys levels up to
+        // learnByDoingMaxBoughtLevel (above that, levels only come from doing)
         boolean learnByDoing = HandlerLearnByDoing.enabled();
-        boolean canLevelUpAptitude = !learnByDoing && (client.player.isCreative()
+        boolean buyable = HandlerLearnByDoing.canBuyLevel(aptitudeLevel);
+        boolean canLevelUpAptitude = buyable && (client.player.isCreative()
                 || Utils.getExperienceForLevel(AptitudeLevelUpSP.requiredExperienceLevels(aptitudeLevel)) <= Utils.getPlayerXP(client.player)
                 || AptitudeLevelUpSP.requiredExperienceLevels(aptitudeLevel) <= client.player.experienceLevel);
 
@@ -299,18 +301,23 @@ public class TalentsScreen extends Screen {
                                 .withStyle(ChatFormatting.RED),
                         mouseX,
                         mouseY);
-            } else if (learnByDoing && aptitudeLevel < HandlerCommonConfig.HANDLER.instance().aptitudeMaxLevel) {
-                int needed = AptitudeLevelUpSP.requiredPoints(aptitudeLevel);
-                int have = (int) Math.min(capability.getAptitudeXp(aptitude), needed);
-                Utils.drawToolTip(matrixStack, Component.translatable("tooltip.aptitude.learn_by_doing",
-                        Component.literal(String.valueOf(have)).withStyle(ChatFormatting.GREEN),
-                        Component.literal(String.valueOf(needed)).withStyle(ChatFormatting.GREEN),
-                        Component.translatable(aptitude.getKey()).withStyle(ChatFormatting.GREEN)).withStyle(ChatFormatting.GRAY), mouseX, mouseY);
             } else if (aptitudeLevel < HandlerCommonConfig.HANDLER.instance().aptitudeMaxLevel) {
-                ChatFormatting color = canLevelUpAptitude ? ChatFormatting.GREEN : ChatFormatting.RED;
-                Utils.drawToolTip(matrixStack, Component.translatable("tooltip.aptitude.level_up", Component.literal(String.valueOf(AptitudeLevelUpSP.requiredExperienceLevels(aptitudeLevel))).withStyle(color),
-                        Component.literal(String.valueOf(AptitudeLevelUpSP.requiredPoints(aptitudeLevel))).withStyle(color),
-                        Component.translatable(aptitude.getKey()).withStyle(color)).withStyle(ChatFormatting.GRAY), mouseX, mouseY);
+                List<Component> lines = new ArrayList<>();
+                if (buyable) {
+                    ChatFormatting color = canLevelUpAptitude ? ChatFormatting.GREEN : ChatFormatting.RED;
+                    lines.add(Component.translatable("tooltip.aptitude.level_up", Component.literal(String.valueOf(AptitudeLevelUpSP.requiredExperienceLevels(aptitudeLevel))).withStyle(color),
+                            Component.literal(String.valueOf(AptitudeLevelUpSP.requiredPoints(aptitudeLevel))).withStyle(color),
+                            Component.translatable(aptitude.getKey()).withStyle(color)).withStyle(ChatFormatting.GRAY));
+                }
+                if (learnByDoing) {
+                    int needed = AptitudeLevelUpSP.requiredPoints(aptitudeLevel);
+                    int have = (int) Math.min(capability.getAptitudeXp(aptitude), needed);
+                    lines.add(Component.translatable(buyable ? "tooltip.aptitude.learn_by_doing_progress" : "tooltip.aptitude.learn_by_doing",
+                            Component.literal(String.valueOf(have)).withStyle(ChatFormatting.GREEN),
+                            Component.literal(String.valueOf(needed)).withStyle(ChatFormatting.GREEN),
+                            Component.translatable(aptitude.getKey()).withStyle(ChatFormatting.GREEN)).withStyle(ChatFormatting.GRAY));
+                }
+                Utils.drawToolTipList(matrixStack, lines, mouseX, mouseY);
                 this.tick = this.maxTick - 5;
                 if (canLevelUpAptitude) {
                     this.b = true;

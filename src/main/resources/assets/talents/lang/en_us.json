@@ -20,6 +20,7 @@
  "yacl3.config.talents:config.logSpellIds": "Log Spell ids",
  "yacl3.config.talents:config.playersMaxGlobalLevel": "Players max global level",
  "yacl3.config.talents:config.learnByDoing": "Learn by doing",
+ "yacl3.config.talents:config.learnByDoingMaxBoughtLevel": "Learn by doing: highest bought level",
 
  "yacl3.config.talents:config.aptitudeMaxLevel.desc": "Aptitudes max level",
  "yacl3.config.talents:config.aptitudeFirstCostLevel.desc": "First aptitudes level cost",
@@ -30,7 +31,8 @@
  "yacl3.config.talents:config.logTaczGunNames.desc": "TAC:Zero have a special id system, so if you wanna get the id to restrict you need to enable this and shoot.",
  "yacl3.config.talents:config.logSpellIds.desc": "Iron's Spell 'n Spellbooks have a unique spell id for each spell, so if you wanna get the id to restrict you need to enable this and cast the spell.",
  "yacl3.config.talents:config.playersMaxGlobalLevel.desc": "Global max level, the global level is calculated summing all aptitudes level, so if this is set to 32 players will be able to only maximize 1 skill.",
- "yacl3.config.talents:config.learnByDoing.desc": "Aptitudes level up from what you do (killing, mining, farming, crafting...) instead of being bought with XP. Rates are in talents.learn-by-doing.json5. Passives still cost XP.",
+ "yacl3.config.talents:config.learnByDoing.desc": "Aptitudes also level up from what you do (killing, mining, farming, crafting...). Rates are in talents.learn-by-doing.json5. Passives still cost XP.",
+ "yacl3.config.talents:config.learnByDoingMaxBoughtLevel.desc": "With learn by doing on, aptitude levels up to this one can still be bought with XP. Levels above it only come from what you do. 0 = none can be bought.",
 
  "yacl3.config.talents:config.attackDamageValue" : "Attack Damage Value",
  "yacl3.config.talents:config.attackKnockbackValue" : "Attack Knockback Value",
@@ -143,7 +145,8 @@
  "aptitude.talents.rank.8" : "Ascendant",
 
  "tooltip.aptitude.level_up" : "Spent %s levels (%s xp) to level up %s.",
- "tooltip.aptitude.learn_by_doing" : "%s / %s XP to the next %s level. Aptitudes level up by doing.",
+ "tooltip.aptitude.learn_by_doing" : "%s / %s XP to the next %s level. Higher levels only come from doing.",
+ "tooltip.aptitude.learn_by_doing_progress" : "Or by doing: %s / %s XP to the next %s level.",
  "message.talents.aptitude.level_up" : "%s is now level %s!",
  "tooltip.aptitude.max_level" : "You achieve the max %s level.",
  "tooltip.aptitude.global_max_level": "Global max aptitude level of %s reached.",

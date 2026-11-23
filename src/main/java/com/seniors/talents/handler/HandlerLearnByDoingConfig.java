@@ -74,8 +74,10 @@ public class HandlerLearnByDoingConfig {
     public double breedingFarming = 1.0;
     @SerialEntry(comment = "Share of a furnace recipe's XP given when you take the output: food -> farming, ingots/gems/nuggets -> mining, anything else -> building.")
     public double smelting = 1.0;
-    @SerialEntry(comment = "Share of the XP points spent on enchanting and anvils that goes to magic.")
+    @SerialEntry(comment = "Share of the XP points spent on enchanting, anvils and Golden Osmosis repairs that goes to magic.")
     public double levelsSpentMagic = 0.5;
+    @SerialEntry(comment = "Electroblob's Wizardry: magic XP per point of a spell's mana cost when it's cast from a wand (continuous spells: per second of casting).")
+    public double wandSpellMagic = 0.25;
     @SerialEntry(comment = "Magic XP per potion taken out of a brewing stand.")
     public double brewingMagic = 0.5;
 

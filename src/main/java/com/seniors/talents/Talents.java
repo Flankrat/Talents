@@ -6,6 +6,7 @@ import com.seniors.talents.handler.HandlerCommonConfig;
 import com.seniors.talents.handler.HandlerCurios;
 import com.seniors.talents.handler.HandlerLearnByDoing;
 import com.seniors.talents.integration.FirstAidEventsCompat;
+import com.seniors.talents.integration.WizardryLearnByDoing;
 import com.seniors.talents.network.ServerNetworking;
 import com.seniors.talents.registry.*;
 import com.seniors.talents.registry.skills.TransmutationSkill;
@@ -63,6 +64,9 @@ public class Talents {
 		TalentsLootConditions.LOOT_CONDITIONS.register(eventBus);
 		MinecraftForge.EVENT_BUS.register(new RegistryCommonEvents());
 		MinecraftForge.EVENT_BUS.register(HandlerLearnByDoing.class);   // learn by doing (checks its config option itself)
+		if (FMLLoader.getLoadingModList().getModFileById("ebwizardry") != null) {
+			WizardryLearnByDoing.register();   // wand spells -> magic XP (only loaded with Electroblob's Wizardry)
+		}
 		if (HandlerCurios.isModLoaded())
 			MinecraftForge.EVENT_BUS.register(new HandlerCurios());
 		if (FMLLoader.getLoadingModList().getModFileById("firstaid") != null) {

@@ -55,8 +55,8 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * Learn by doing: when learnByDoing is on, aptitudes level up from what the player does instead of being bought
- * with XP. Every source is measured in vanilla XP points (anything that drops XP in vanilla feeds the matching
+ * Learn by doing: when learnByDoing is on, aptitudes level up from what the player does. Levels up to
+ * learnByDoingMaxBoughtLevel can still be bought with XP as well ({@link #canBuyLevel}); above it, doing is the only way. Every source is measured in vanilla XP points (anything that drops XP in vanilla feeds the matching
  * aptitude with that much, times the rate in talents.learn-by-doing.json5), and a level needs as many points as
  * buying it with XP would cost ({@link AptitudeLevelUpSP#requiredPoints}), so the pace matches the old one.
  * <ul>
@@ -65,7 +65,8 @@ import java.util.UUID;
  *   <li>damage taken or blocked with a shield -> defense; magic damage dealt -> magic</li>
  *   <li>block XP (ores) and stone -> mining, logs -> gathering, grown crops -> farming, placing -> building</li>
  *   <li>fishing -> gathering, breeding -> farming, smelting -> farming/mining/building by what came out</li>
- *   <li>levels spent on enchanting and anvils, and brewing -> magic; sprinting and jumping -> agility</li>
+ *   <li>XP spent on enchanting, anvils and Golden Osmosis, brewing, and casting Wizardry spells from a wand
+ *       ({@link com.seniors.talents.integration.WizardryLearnByDoing}) -> magic; sprinting and jumping -> agility</li>
  *   <li>crafting and workstations (anvil, smithing table, ... see {@link StationXp}) -> building</li>
  * </ul>
  * Every handler runs at LOWEST priority, so other mods' changes to the event (and cancels) come first.
@@ -98,6 +99,15 @@ public final class HandlerLearnByDoing {
     /** Learn by doing is on (synced to clients, so the screen can use this too). */
     public static boolean enabled() {
         return HandlerCommonConfig.HANDLER.instance().learnByDoing;
+    }
+
+    /**
+     * Whether an aptitude at this level can still be bought up one level with XP: always with learn by doing off,
+     * otherwise only while the level being bought is at most learnByDoingMaxBoughtLevel. Used by the level-up
+     * packet (server) and the screen (client), so both agree.
+     */
+    public static boolean canBuyLevel(int currentLevel) {
+        return !enabled() || currentLevel + 1 <= HandlerCommonConfig.HANDLER.instance().learnByDoingMaxBoughtLevel;
     }
 
     private static HandlerLearnByDoingConfig rates() {
@@ -348,8 +358,8 @@ public final class HandlerLearnByDoing {
     }
 
     /**
-     * Takes XP points for something Talents sells (passive levels, Golden Osmosis repairs). The levels this costs
-     * don't count as magic XP; only enchanting and anvils do.
+     * Takes XP points for something Talents sells (passive levels). The levels this costs don't count as magic XP;
+     * only enchanting, anvils and Golden Osmosis do.
      */
     public static void spendXpPoints(Player player, int points) {
         boolean was = spendingOnTalents;
@@ -359,6 +369,18 @@ public final class HandlerLearnByDoing {
         } finally {
             spendingOnTalents = was;
         }
+    }
+
+    /**
+     * Takes XP points for a Golden Osmosis repair and counts exactly those points as magic XP (at the enchanting/
+     * anvil rate). Golden Osmosis spends a few points at a time, which only rarely crosses a whole level, so the
+     * level-change event alone would miss almost all of it; the spend itself is kept out of that event so it isn't
+     * counted twice.
+     */
+    public static void spendXpPointsAsMagic(Player player, int points) {
+        spendXpPoints(player, points);
+        if (player instanceof ServerPlayer serverPlayer)
+            give(serverPlayer, MAGIC, points * rates().levelsSpentMagic);
     }
 
     /** Total vanilla XP points needed to reach an XP level (Minecraft's own formula). */

@@ -393,21 +393,21 @@ public class RegistryCommonEvents {
 								if (isGolden(mainHand)) {
 									if (mainHand.getDamageValue() > 0) {
 										mainHand.setDamageValue(mainHand.getDamageValue() - 9);
-										HandlerLearnByDoing.spendXpPoints(player, 3);
+										HandlerLearnByDoing.spendXpPointsAsMagic(player, 3);   // Golden Osmosis repairs count as magic
 									}
 								}
 								ItemStack offHand = player.getOffhandItem();
 								if (isGolden(offHand)) {
 									if (offHand.getDamageValue() > 0) {
 										offHand.setDamageValue(offHand.getDamageValue() - 9);
-										HandlerLearnByDoing.spendXpPoints(player, 3);
+										HandlerLearnByDoing.spendXpPointsAsMagic(player, 3);   // Golden Osmosis repairs count as magic
 									}
 								}
 								for (ItemStack stack : player.getArmorSlots()) {
 									if (isGolden(stack)) {
 										if (stack.getDamageValue() > 0) {
 											stack.setDamageValue(stack.getDamageValue() - 9);
-											HandlerLearnByDoing.spendXpPoints(player, 3);
+											HandlerLearnByDoing.spendXpPointsAsMagic(player, 3);   // Golden Osmosis repairs count as magic
 										}
 									}
 								}

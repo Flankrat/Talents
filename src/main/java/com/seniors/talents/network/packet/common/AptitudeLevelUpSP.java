@@ -36,11 +36,11 @@ public class AptitudeLevelUpSP {
         context.enqueueWork(() -> {
             ServerPlayer player = context.getSender();
             if (player != null) {
-                // with learn by doing, aptitudes only level from what the player does, never from spending XP
-                if (HandlerLearnByDoing.enabled()) return;
                 AptitudeCapability capability = AptitudeCapability.get(player);
                 Aptitude aptitudePlayer = RegistryAptitudes.getAptitude(this.aptitude);
                 int aptitudeLevel = capability.getAptitudeLevel(aptitudePlayer);
+                // with learn by doing, levels above learnByDoingMaxBoughtLevel only come from what the player does
+                if (!HandlerLearnByDoing.canBuyLevel(aptitudeLevel)) return;
 
                 boolean canLevelUpAptitude = (player.isCreative()
                         || AptitudeLevelUpSP.requiredPoints(aptitudeLevel) <= player.totalExperience
