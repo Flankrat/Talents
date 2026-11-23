@@ -29,6 +29,7 @@ public class Configuration {
         HandlerCommonConfig.HANDLER.load();
         TalentsItemTagsLock.HANDLER.load();
         HandlerLockItemsConfig.HANDLER.load();
+        HandlerLearnByDoingConfig.HANDLER.load();
     }
 }
 

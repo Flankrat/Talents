@@ -7,6 +7,7 @@ import com.seniors.talents.client.core.Utils;
 import com.seniors.talents.client.gui.DrawTabs;
 import com.seniors.talents.common.capability.AptitudeCapability;
 import com.seniors.talents.handler.HandlerCommonConfig;
+import com.seniors.talents.handler.HandlerLearnByDoing;
 import com.seniors.talents.handler.HandlerConfigClient;
 import com.seniors.talents.handler.HandlerResources;
 import com.seniors.talents.integration.KubeJSIntegration;
@@ -285,7 +286,9 @@ public class TalentsScreen extends Screen {
 
         matrixStack.blit(HandlerResources.SKILL_PAGE[this.selectedPage], x + 153, y + 14, 177 + j, 1, 6, 6);
 
-        boolean canLevelUpAptitude = (client.player.isCreative()
+        // with learn by doing the button can't buy levels; it shows the aptitude's XP progress instead
+        boolean learnByDoing = HandlerLearnByDoing.enabled();
+        boolean canLevelUpAptitude = !learnByDoing && (client.player.isCreative()
                 || Utils.getExperienceForLevel(AptitudeLevelUpSP.requiredExperienceLevels(aptitudeLevel)) <= Utils.getPlayerXP(client.player)
                 || AptitudeLevelUpSP.requiredExperienceLevels(aptitudeLevel) <= client.player.experienceLevel);
 
@@ -296,6 +299,13 @@ public class TalentsScreen extends Screen {
                                 .withStyle(ChatFormatting.RED),
                         mouseX,
                         mouseY);
+            } else if (learnByDoing && aptitudeLevel < HandlerCommonConfig.HANDLER.instance().aptitudeMaxLevel) {
+                int needed = AptitudeLevelUpSP.requiredPoints(aptitudeLevel);
+                int have = (int) Math.min(capability.getAptitudeXp(aptitude), needed);
+                Utils.drawToolTip(matrixStack, Component.translatable("tooltip.aptitude.learn_by_doing",
+                        Component.literal(String.valueOf(have)).withStyle(ChatFormatting.GREEN),
+                        Component.literal(String.valueOf(needed)).withStyle(ChatFormatting.GREEN),
+                        Component.translatable(aptitude.getKey()).withStyle(ChatFormatting.GREEN)).withStyle(ChatFormatting.GRAY), mouseX, mouseY);
             } else if (aptitudeLevel < HandlerCommonConfig.HANDLER.instance().aptitudeMaxLevel) {
                 ChatFormatting color = canLevelUpAptitude ? ChatFormatting.GREEN : ChatFormatting.RED;
                 Utils.drawToolTip(matrixStack, Component.translatable("tooltip.aptitude.level_up", Component.literal(String.valueOf(AptitudeLevelUpSP.requiredExperienceLevels(aptitudeLevel))).withStyle(color),

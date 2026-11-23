@@ -10,6 +10,7 @@ import com.seniors.talents.Talents;
 import com.seniors.talents.config.TalentsItemTagsLock;
 import com.seniors.talents.config.models.LockItem;
 import com.seniors.talents.config.models.LockItem.Aptitude;
+import com.seniors.talents.handler.HandlerAptitude;
 import com.seniors.talents.handler.HandlerLockItemsConfig;
 
 import net.minecraft.core.Holder;
@@ -140,6 +141,7 @@ public class TalentsItemLocksHandler {
 			}
 		}
 		HandlerLockItemsConfig.HANDLER.instance().lockItemList = mutable;
+		HandlerAptitude.invalidate();   // the cached locks were built without the tag and material locks
 	}
 	
 	

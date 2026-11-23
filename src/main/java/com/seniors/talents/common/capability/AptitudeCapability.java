@@ -29,6 +29,8 @@ import java.util.Objects;
 
 public class AptitudeCapability implements INBTSerializable<CompoundTag> {
     public Map<String, Integer> aptitudeLevel = mapAptitudes();
+    // learn by doing: XP (vanilla XP points) collected toward each aptitude's next level
+    public Map<String, Double> aptitudeXp = new HashMap<>();
     public Map<String, Integer> passiveLevel = mapPassive();
     public Map<String, Boolean> toggleSkill = mapSkills();
     public double betterCombatEntityRange = 0.0D;
@@ -107,6 +109,15 @@ public class AptitudeCapability implements INBTSerializable<CompoundTag> {
         return this.aptitudeLevel.get(aptitudeName);
     }
 
+    /** Learn by doing: XP collected toward this aptitude's next level (0 if none yet). */
+    public double getAptitudeXp(Aptitude aptitude) {
+        return this.aptitudeXp.getOrDefault(aptitude.getName(), 0.0);
+    }
+
+    public void setAptitudeXp(Aptitude aptitude, double xp) {
+        this.aptitudeXp.put(aptitude.getName(), xp);
+    }
+
     public void setAptitudeLevel(Aptitude aptitude, int lvl) {
         this.aptitudeLevel.put(aptitude.getName(), lvl);
     }
@@ -140,7 +151,15 @@ public class AptitudeCapability implements INBTSerializable<CompoundTag> {
     }
 
     public boolean canUseItem(Player player, ItemStack item) {
-        return canUse(player, Objects.requireNonNull(ForgeRegistries.ITEMS.getKey(item.getItem())));
+        List<Aptitudes> lock = HandlerAptitude.getValue(item.getItem());
+        if (meets(lock)) return true;
+        warn(player, lock.get(0).getResource());
+        return false;
+    }
+
+    /** Like canUseItem, but without the "locked" warning; for checks that run often or on the client. */
+    public boolean canUseItemQuiet(ItemStack item) {
+        return meets(HandlerAptitude.getValue(item.getItem()));
     }
 
     public boolean canUseItem(Player player, ResourceLocation resourceLocation) {
@@ -165,17 +184,33 @@ public class AptitudeCapability implements INBTSerializable<CompoundTag> {
     }
 
     private boolean canUse(Player player, ResourceLocation resource) {
-        List<Aptitudes> aptitude = HandlerAptitude.getValue(resource.toString());
-        if (aptitude != null) {
-            for (Aptitudes aptitudes : aptitude) {
-                if (getAptitudeLevel(aptitudes.getAptitude()) < aptitudes.getAptitudeLvl()) {
-                    if (player instanceof net.minecraft.server.level.ServerPlayer)
-                        AptitudeOverlayCP.send(player, resource.toString());
-                    return false;
-                }
-            }
+        String id = resource.toString();
+        if (meets(HandlerAptitude.getValue(id))) return true;
+        warn(player, id);
+        return false;
+    }
+
+    /** True when the player has every aptitude level the lock asks for (or there is no lock). */
+    private boolean meets(@Nullable List<Aptitudes> lock) {
+        if (lock == null) return true;
+        for (Aptitudes aptitudes : lock) {
+            if (getAptitudeLevel(aptitudes.getAptitude()) < aptitudes.getAptitudeLvl()) return false;
         }
         return true;
+    }
+
+    // last "locked" warning sent, so the same item isn't re-sent every check (curio slots and the crafting grid
+    // check the same item many times in one click)
+    private String lastWarning = "";
+    private int lastWarningTick = Integer.MIN_VALUE;
+
+    /** Shows the "locked" overlay for an id, at most once a second for the same id. Server side only. */
+    private void warn(Player player, String id) {
+        if (!(player instanceof net.minecraft.server.level.ServerPlayer)) return;
+        if (id.equals(this.lastWarning) && player.tickCount - this.lastWarningTick < 20 && player.tickCount >= this.lastWarningTick) return;
+        this.lastWarning = id;
+        this.lastWarningTick = player.tickCount;
+        AptitudeOverlayCP.send(player, id);
     }
 
     // Required for locking PointBlank
@@ -193,23 +228,16 @@ public class AptitudeCapability implements INBTSerializable<CompoundTag> {
     }
 
     private boolean canUse(Player player, String restrictionID) {
-        List<Aptitudes> aptitude = HandlerAptitude.getValue(restrictionID);
-        if (aptitude != null) {
-            for (Aptitudes aptitudes : aptitude) {
-                if (getAptitudeLevel(aptitudes.getAptitude()) < aptitudes.getAptitudeLvl()) {
-                    if (player instanceof net.minecraft.server.level.ServerPlayer)
-                        AptitudeOverlayCP.send(player, restrictionID);
-                    return false;
-                }
-            }
-        }
-        return true;
+        if (meets(HandlerAptitude.getValue(restrictionID))) return true;
+        warn(player, restrictionID);
+        return false;
     }
 
     public CompoundTag serializeNBT() {
         CompoundTag nbt = new CompoundTag();
         for (Aptitude aptitude : RegistryAptitudes.APTITUDES_REGISTRY.get().getValues().stream().toList()){
             nbt.putInt("aptitude." + aptitude.getName(), this.aptitudeLevel.get(aptitude.getName()));
+            nbt.putDouble("aptitudeXp." + aptitude.getName(), getAptitudeXp(aptitude));
         }
         for (Passive passive : RegistryPassives.PASSIVES_REGISTRY.get().getValues().stream().toList()){
             nbt.putInt("passive." + passive.getName(), this.passiveLevel.get(passive.getName()));
@@ -226,6 +254,7 @@ public class AptitudeCapability implements INBTSerializable<CompoundTag> {
     public void deserializeNBT(CompoundTag nbt) {
         for (Aptitude aptitude : RegistryAptitudes.APTITUDES_REGISTRY.get().getValues().stream().toList()){
             this.aptitudeLevel.put(aptitude.getName(), nbt.getInt("aptitude." + aptitude.getName()));
+            this.aptitudeXp.put(aptitude.getName(), nbt.getDouble("aptitudeXp." + aptitude.getName()));   // 0 in old saves
         }
         for (Passive passive : RegistryPassives.PASSIVES_REGISTRY.get().getValues().stream().toList()){
             this.passiveLevel.put(passive.getName(), nbt.getInt("passive." + passive.getName()));
@@ -241,6 +270,7 @@ public class AptitudeCapability implements INBTSerializable<CompoundTag> {
     public void copyFrom(AptitudeCapability source) {
         for (Aptitude aptitude : RegistryAptitudes.APTITUDES_REGISTRY.get().getValues().stream().toList()){
             this.aptitudeLevel.put(aptitude.getName(), source.aptitudeLevel.get(aptitude.getName()));
+            this.aptitudeXp.put(aptitude.getName(), source.getAptitudeXp(aptitude));
         }
         for (Passive passive : RegistryPassives.PASSIVES_REGISTRY.get().getValues().stream().toList()){
             this.passiveLevel.put(passive.getName(), source.passiveLevel.get(passive.getName()));

@@ -18,7 +18,8 @@
     "AbstractFurnaceBlockEntityMixin",
     "ClientboundSetEntityMotionPacketMixin",
     "DragonEggBlockMixin",
-    "MemoryAccessorMixin"
+    "MemoryAccessorMixin",
+    "MixAbstractContainerMenu"
   ],
   "injectors": {
     "defaultRequire": 1

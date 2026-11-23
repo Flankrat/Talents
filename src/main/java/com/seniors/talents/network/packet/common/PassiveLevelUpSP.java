@@ -1,6 +1,7 @@
 package com.seniors.talents.network.packet.common;
 
 import com.seniors.talents.common.capability.AptitudeCapability;
+import com.seniors.talents.handler.HandlerLearnByDoing;
 import com.seniors.talents.network.ServerNetworking;
 import com.seniors.talents.network.packet.client.SyncAptitudeCapabilityCP;
 import com.seniors.talents.registry.RegistryPassives;
@@ -42,7 +43,7 @@ public class PassiveLevelUpSP {
 					// player.displayClientMessage(Component.translatable("passive.talents.not_enough_xp", levelcost), true);
 					return;
 				}
-				player.giveExperiencePoints(-xpcost);
+				HandlerLearnByDoing.spendXpPoints(player, xpcost);   // buying a passive isn't magic XP
 				capability.addPassiveLevel(passive, 1);
                 SyncAptitudeCapabilityCP.send(player);
             }

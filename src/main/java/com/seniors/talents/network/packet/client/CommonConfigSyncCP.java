@@ -26,6 +26,7 @@ public class CommonConfigSyncCP {
     private final int aptitudeFirstCostLevel;
     private final boolean dropLockedItems;
     private final boolean displayTitlesAsPrefix;
+    private final boolean learnByDoing;
 
     // Passive
     private final float attackDamageValue;
@@ -80,6 +81,7 @@ public class CommonConfigSyncCP {
         aptitudeFirstCostLevel = config.aptitudeFirstCostLevel;
         dropLockedItems = config.dropLockedItems;
         displayTitlesAsPrefix = config.displayTitlesAsPrefix;
+        learnByDoing = config.learnByDoing;
 
         // Passives
         attackDamageValue = config.attackDamageValue;
@@ -141,6 +143,7 @@ public class CommonConfigSyncCP {
         aptitudeFirstCostLevel = buffer.readInt();
         dropLockedItems = buffer.readBoolean();
         displayTitlesAsPrefix = buffer.readBoolean();
+        learnByDoing = buffer.readBoolean();
 
         // Passives
         attackDamageValue = buffer.readFloat();
@@ -202,6 +205,7 @@ public class CommonConfigSyncCP {
         buffer.writeInt(this.aptitudeFirstCostLevel);
         buffer.writeBoolean(this.dropLockedItems);
         buffer.writeBoolean(this.displayTitlesAsPrefix);
+        buffer.writeBoolean(this.learnByDoing);
 
         // Passives
         buffer.writeFloat(this.attackDamageValue);
@@ -271,6 +275,7 @@ public class CommonConfigSyncCP {
                 config.aptitudeFirstCostLevel = this.aptitudeFirstCostLevel;
                 config.dropLockedItems = this.dropLockedItems;
                 config.displayTitlesAsPrefix = this.displayTitlesAsPrefix;
+                config.learnByDoing = this.learnByDoing;
 
                 // Passives
                 config.attackDamageValue = this.attackDamageValue;

@@ -3,6 +3,7 @@ package com.seniors.talents.registry;
 import com.seniors.talents.common.capability.AptitudeCapability;
 import com.seniors.talents.common.capability.LazyAptitudeCapability;
 import com.seniors.talents.common.command.*;
+import com.seniors.talents.handler.HandlerLearnByDoing;
 import com.seniors.talents.handler.HandlerCommonConfig;
 import com.seniors.talents.network.packet.client.*;
 import com.seniors.talents.registry.passive.Passive;
@@ -392,21 +393,21 @@ public class RegistryCommonEvents {
 								if (isGolden(mainHand)) {
 									if (mainHand.getDamageValue() > 0) {
 										mainHand.setDamageValue(mainHand.getDamageValue() - 9);
-										player.giveExperiencePoints(-3);
+										HandlerLearnByDoing.spendXpPoints(player, 3);
 									}
 								}
 								ItemStack offHand = player.getOffhandItem();
 								if (isGolden(offHand)) {
 									if (offHand.getDamageValue() > 0) {
 										offHand.setDamageValue(offHand.getDamageValue() - 9);
-										player.giveExperiencePoints(-3);
+										HandlerLearnByDoing.spendXpPoints(player, 3);
 									}
 								}
 								for (ItemStack stack : player.getArmorSlots()) {
 									if (isGolden(stack)) {
 										if (stack.getDamageValue() > 0) {
 											stack.setDamageValue(stack.getDamageValue() - 9);
-											player.giveExperiencePoints(-3);
+											HandlerLearnByDoing.spendXpPoints(player, 3);
 										}
 									}
 								}

@@ -1,7 +1,6 @@
 package com.seniors.talents.handler;
 
 import com.seniors.talents.common.capability.AptitudeCapability;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -19,27 +18,31 @@ public class HandlerCurios {
         return ModList.get().isLoaded("curios");
     }
 
+    /**
+     * Curio locks. Curios fires this from the slot's mayPlace on both sides, many times per click (shift-click
+     * tries every curio slot), so the client checks too (otherwise it shows the item going in, then the server
+     * puts it back) and only the server sends the "locked" warning, which is limited to once a second per item.
+     */
     @SubscribeEvent
     public void onCurioCanEquipEvent(CurioEquipEvent event){
-        LivingEntity livingEntity = event.getEntity();
-        if (livingEntity instanceof ServerPlayer player) {
-            if (!player.isCreative()) {
-                ItemStack item = event.getStack();
+        if (!(event.getEntity() instanceof Player player) || player.isCreative()) return;
+        ItemStack item = event.getStack();
+        if (item.isEmpty()) return;
 
-                AptitudeCapability aptitudeCapability = AptitudeCapability.get(player);
-                if (aptitudeCapability == null) return;
+        AptitudeCapability aptitudeCapability = AptitudeCapability.get(player);
+        if (aptitudeCapability == null) return;
 
-                try {
-                    if (!aptitudeCapability.canUseItem(player, item)) {
-                        event.setResult(Event.Result.DENY);
-                    }
-                }
-                // This NullPointerException can happen if this event is triggered before the player fully establish the connection.
-                catch (NullPointerException ignored) {
-                    event.setResult(Event.Result.DENY);
-                }
-
+        try {
+            boolean allowed = player.level().isClientSide()
+                    ? aptitudeCapability.canUseItemQuiet(item)
+                    : aptitudeCapability.canUseItem(player, item);
+            if (!allowed) {
+                event.setResult(Event.Result.DENY);
             }
+        }
+        // This NullPointerException can happen if this event is triggered before the player fully establish the connection.
+        catch (NullPointerException ignored) {
+            event.setResult(Event.Result.DENY);
         }
     }
 
@@ -60,10 +63,11 @@ public class HandlerCurios {
                     for(int i = 0; i < stackHandler.getSlots(); i++){
                         ItemStack itemStack = stackHandler.getStackInSlot(i);
 
-                        if (!aptitudeCapability.canUseItem(player, itemStack)) {
-                            player.drop(itemStack, false);
-                            itemStack.setCount(0);
+                        if (!itemStack.isEmpty() && !aptitudeCapability.canUseItem(player, itemStack)) {
+                            // take it out of the slot first and drop that: dropping the stack and then emptying
+                            // it (setCount(0)) emptied the dropped item too, so the curio was destroyed
                             stackHandler.setStackInSlot(i, ItemStack.EMPTY);
+                            player.drop(itemStack, false);
                             curiosInventory.clearSlotModifiers();
                         }
                     }
