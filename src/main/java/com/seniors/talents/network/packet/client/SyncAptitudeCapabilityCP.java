@@ -35,7 +35,10 @@ public class SyncAptitudeCapabilityCP {
     }
 
     public static void send(Player player) {
-        ServerNetworking.sendToPlayer(new SyncAptitudeCapabilityCP(AptitudeCapability.get(player).serializeNBT()), (ServerPlayer) player);
+        AptitudeCapability capability = AptitudeCapability.get(player);
+        // null once the player entity is removed (dead, or the old copy after respawn): nothing to send
+        if (capability == null) return;
+        ServerNetworking.sendToPlayer(new SyncAptitudeCapabilityCP(capability.serializeNBT()), (ServerPlayer) player);
     }
 }
 
