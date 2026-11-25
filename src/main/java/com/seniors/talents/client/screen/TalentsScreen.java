@@ -163,6 +163,16 @@ public class TalentsScreen extends Screen {
         matrixStack.drawString(client.font, Component.translatable(key).withStyle(ChatFormatting.BOLD), x + 34, y + 8, Utils.FONT_COLOR, false);
         matrixStack.drawString(client.font, Component.translatable("screen.skill.level_and_rank", Utils.numberFormat(aptitudeLevel), HandlerCommonConfig.HANDLER.instance().aptitudeMaxLevel, rank), x + 34, y + 18, Utils.FONT_COLOR, false);
 
+        // learn by doing: a thin bar under the level shows how far the aptitude is toward its next level (no numbers:
+        // levels that can still be bought need more points, and the jump after them would look odd)
+        if (HandlerLearnByDoing.enabled() && aptitudeLevel < HandlerCommonConfig.HANDLER.instance().aptitudeMaxLevel) {
+            int barWidth = 110;
+            int needed = HandlerLearnByDoing.doingPoints(aptitudeLevel);
+            double fraction = needed > 0 ? Math.min(1.0, (double) capability.getAptitudeXp(aptitude) / needed) : 0.0;
+            matrixStack.fill(x + 34, y + 27, x + 34 + barWidth, y + 29, 0xFF373737);                        // empty bar
+            matrixStack.fill(x + 34, y + 27, x + 34 + (int) (barWidth * fraction), y + 29, 0xFF80FF20);     // progress, XP-bar green
+        }
+
         matrixStack.blit(HandlerResources.SKILL_PAGE[this.selectedPage], x + 16, y + 144, 30, 167, 11, 11);
         if (Utils.checkMouse(x + 16, y + 144, mouseX, mouseY, 11, 11)) {
             matrixStack.blit(HandlerResources.SKILL_PAGE[this.selectedPage], x + 16, y + 144, 30, 179, 11, 11);
@@ -310,11 +320,8 @@ public class TalentsScreen extends Screen {
                             Component.translatable(aptitude.getKey()).withStyle(color)).withStyle(ChatFormatting.GRAY));
                 }
                 if (learnByDoing) {
-                    int needed = HandlerLearnByDoing.doingPoints(aptitudeLevel);
-                    int have = (int) Math.min(capability.getAptitudeXp(aptitude), needed);
+                    // progress is the bar under the level; no point numbers here (see drawSkills)
                     lines.add(Component.translatable(buyable ? "tooltip.aptitude.learn_by_doing_progress" : "tooltip.aptitude.learn_by_doing",
-                            Component.literal(String.valueOf(have)).withStyle(ChatFormatting.GREEN),
-                            Component.literal(String.valueOf(needed)).withStyle(ChatFormatting.GREEN),
                             Component.translatable(aptitude.getKey()).withStyle(ChatFormatting.GREEN)).withStyle(ChatFormatting.GRAY));
                 }
                 Utils.drawToolTipList(matrixStack, lines, mouseX, mouseY);
