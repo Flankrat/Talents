@@ -167,7 +167,9 @@ public final class HandlerLearnByDoing {
         if (server == null || server.getTickCount() % SYNC_TICKS != 0) return;
         for (UUID id : DIRTY) {
             ServerPlayer player = server.getPlayerList().getPlayer(id);
-            if (player != null) SyncAptitudeCapabilityCP.send(player);
+            // A dead player stays in the player list until they respawn, but once removed (20 ticks after
+            // dying) Forge has invalidated their capabilities. Skip them: the respawn sync sends everything.
+            if (player != null && !player.isRemoved()) SyncAptitudeCapabilityCP.send(player);
         }
         DIRTY.clear();
     }
